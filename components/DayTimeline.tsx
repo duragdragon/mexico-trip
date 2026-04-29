@@ -1,9 +1,24 @@
 'use client';
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useEffect, useState } from 'react';
 import { useDayItems } from '@/lib/items/store';
 import { updateItem } from '@/lib/items/mutate';
 import SortableItemRow from './SortableItemRow';
+import { getTravelTime, formatDuration } from '@/lib/travel-time/compute';
+
+function GapMeta({ from, to }: { from: { lat: number; lng: number }; to: { lat: number; lng: number } }) {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getTravelTime(from.lat, from.lng, to.lat, to.lng).then((s) => {
+      if (!cancelled && s != null) setText(formatDuration(s));
+    });
+    return () => { cancelled = true; };
+  }, [from.lat, from.lng, to.lat, to.lng]);
+  if (!text) return null;
+  return <div className="ml-[56px] py-1 text-[10px] opacity-40 italic">↓ {text} by car</div>;
+}
 
 export default function DayTimeline({ date }: { date: string }) {
   const items = useDayItems(date);
@@ -28,7 +43,16 @@ export default function DayTimeline({ date }: { date: string }) {
     <div className="px-5">
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
         <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-          {items.map((item) => <SortableItemRow key={item.id} item={item} />)}
+          {items.map((item, idx) => {
+            const next = items[idx + 1];
+            const showGap = next && item.lat != null && item.lng != null && next.lat != null && next.lng != null;
+            return (
+              <div key={item.id}>
+                <SortableItemRow item={item} />
+                {showGap && <GapMeta from={{ lat: item.lat!, lng: item.lng! }} to={{ lat: next.lat!, lng: next.lng! }} />}
+              </div>
+            );
+          })}
         </SortableContext>
       </DndContext>
     </div>
