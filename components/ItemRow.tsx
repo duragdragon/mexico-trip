@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import type { Item } from '@/lib/types';
+import { checkHours } from '@/lib/hours/check';
 
 const ICON: Record<Item['kind'], { glyph: string; bg: string }> = {
   flight: { glyph: '✈', bg: 'bg-icon-fly' },
@@ -12,6 +13,7 @@ const ICON: Record<Item['kind'], { glyph: string; bg: string }> = {
 export default function ItemRow({ item }: { item: Item }) {
   const i = ICON[item.kind];
   const time = item.start_time?.slice(0, 5) ?? '';
+  const status = (item.kind === 'activity' || item.kind === 'food') ? checkHours(item, new Date()) : null;
   return (
     <Link href={`/item/${item.id}`} className="flex gap-[14px] py-[14px] border-t border-rule first:border-t-0">
       <div className="flex flex-col items-center w-[42px] flex-shrink-0">
@@ -21,6 +23,14 @@ export default function ItemRow({ item }: { item: Item }) {
       <div className="flex-1">
         <div className="serif font-semibold text-[15px] leading-tight">{item.title}</div>
         <div className="text-[11px] text-muted mt-[3px]">{itemMeta(item)}</div>
+        {status?.kind === 'closed_day' && (
+          <span className="inline-block mt-1 px-[6px] py-[2px] rounded text-[9px] font-bold bg-accent-soft text-accent-text uppercase tracking-[0.5px]">Closed today</span>
+        )}
+        {status?.kind === 'closing_soon' && (
+          <span className="inline-block mt-1 px-[6px] py-[2px] rounded text-[9px] font-bold bg-accent-soft text-accent-text uppercase tracking-[0.5px]">
+            Closes in {status.minutesUntilClose}min
+          </span>
+        )}
       </div>
     </Link>
   );
