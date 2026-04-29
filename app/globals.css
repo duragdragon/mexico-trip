@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #faf5ee;
+  --color-ink: #2b1c14;
+  --color-muted: rgba(43, 28, 20, 0.55);
+  --color-rule: #e6dcc9;
+  --color-accent: #c45f3c;
+  --color-accent-soft: #f4d4d0;
+  --color-accent-text: #8a3a2a;
+  --color-icon-eat: #8b4513;
+  --color-icon-see: #b8860b;
+  --color-icon-stay: #4a6b52;
+  --color-icon-fly: #c45f3c;
+
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-sans: -apple-system, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: #faf5ee;
+  color: #2b1c14;
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain;
+}
+
+.serif { font-family: Georgia, "Times New Roman", serif; }
